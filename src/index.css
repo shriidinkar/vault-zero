@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .bg-hatch-pattern {
+    background-color: #f1f5f9;
+    background-image: repeating-linear-gradient(
+      45deg,
+      #93c5fd 0,
+      #93c5fd 1.5px,
+      transparent 0,
+      transparent 8px
+    );
+  }
+  
+  .bg-mesh-kyb {
+    background: linear-gradient(135deg, #a5c7fc 0%, #76a5fa 45%, #4f8bf9 100%);
+  }
+}
+
+/* Custom crisp styling */
+* {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+code, pre, .font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}

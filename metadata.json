@@ -1,0 +1,8 @@
+{
+  "name": "Remix Vault-Zero",
+  "description": "Autonomous procurement engine using AI forensics and multi-agent audits to score, route, and automate secure ERP payments.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

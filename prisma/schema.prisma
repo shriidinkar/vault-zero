@@ -1,0 +1,242 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum InvoiceStatus {
+  RECEIVED
+  PROCESSING
+  FLAGGED
+  APPROVED
+  REJECTED
+  PAID
+}
+
+enum RouteDecision {
+  R1_AUTO_PAY
+  R2_CFO_REVIEW
+  REJECTED
+}
+
+enum FindingSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AgentType {
+  FORENSICS
+  DUPLICATE_ENGINE
+  AUDITOR_3WAY
+  MARKET_SCOUT
+  CONTROL_FLAGS
+}
+
+enum PaymentStatus {
+  INITIATED
+  SETTLED
+  FAILED
+  SIMULATED
+}
+
+model Vendor {
+  id              String          @id @default(uuid())
+  name            String
+  normalizedName  String          @map("normalized_name")
+  taxId           String          @unique @map("tax_id")
+  bankAccountHash String          @map("bank_account_hash")
+  bankName        String          @map("bank_name")
+  accountNumberMasked String      @map("account_number_masked")
+  isNewVendor     Boolean         @default(false) @map("is_new_vendor")
+  trustTier       String          @default("STANDARD") @map("trust_tier")
+  rating          Float           @default(4.5)
+  contactEmail    String          @map("contact_email")
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  contracts       Contract[]
+  purchaseOrders  PurchaseOrder[]
+  invoices        Invoice[]
+
+  @@map("vendors")
+}
+
+model Contract {
+  id               String   @id @default(uuid())
+  vendorId         String   @map("vendor_id")
+  contractNumber   String   @unique @map("contract_number")
+  itemDescription  String   @map("item_description")
+  canonicalItemKey String   @map("canonical_item_key")
+  agreedUnitPrice  Decimal  @map("agreed_unit_price") @db.Decimal(14, 2)
+  currency         String   @default("INR")
+  validFrom        DateTime @map("valid_from")
+  validTo          DateTime @map("valid_to")
+  maxAnnualSpend   Decimal  @map("max_annual_spend") @db.Decimal(14, 2)
+  rateLockClause   Boolean  @default(true) @map("rate_lock_clause")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  vendor           Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@map("contracts")
+}
+
+model PurchaseOrder {
+  id               String   @id @default(uuid())
+  vendorId         String   @map("vendor_id")
+  poNumber         String   @unique @map("po_number")
+  itemDescription  String   @map("item_description")
+  canonicalItemKey String   @map("canonical_item_key")
+  approvedQuantity Decimal  @map("approved_quantity") @db.Decimal(14, 2)
+  approvedUnitPrice Decimal @map("approved_unit_price") @db.Decimal(14, 2)
+  approvedTotalAmount Decimal @map("approved_total_amount") @db.Decimal(14, 2)
+  currency         String   @default("INR")
+  status           String   @default("OPEN")
+  issueDate        DateTime @map("issue_date")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  vendor           Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@map("purchase_orders")
+}
+
+model MarketPrice {
+  id               String   @id @default(uuid())
+  canonicalItemKey String   @unique @map("canonical_item_key")
+  category         String
+  benchmarkPrice   Decimal  @map("benchmark_price") @db.Decimal(14, 2)
+  tolerancePct     Float    @default(5.0) @map("tolerance_pct")
+  lastUpdated      DateTime @default(now()) @map("last_updated")
+
+  @@map("market_prices")
+}
+
+model Invoice {
+  id                      String        @id @default(uuid())
+  vendorId                String?       @map("vendor_id")
+  rawInvoiceNumber        String        @map("raw_invoice_number")
+  normalizedInvoiceNumber String        @map("normalized_invoice_number")
+  amount                  Decimal       @db.Decimal(14, 2)
+  currency                String        @default("INR")
+  invoiceDate             DateTime      @map("invoice_date")
+  dueDate                 DateTime?     @map("due_date")
+  poNumber                String?       @map("po_number")
+  rawFilePath             String        @map("raw_file_path")
+  fileHash                String?       @map("file_hash")
+  status                  InvoiceStatus @default(RECEIVED)
+  routeDecision           RouteDecision @default(R2_CFO_REVIEW) @map("route_decision")
+  trustScore              Float?        @map("trust_score")
+  
+  // High level signals
+  duplicateProb           Float         @default(0) @map("duplicate_prob")
+  forensicRisk            Float         @default(0) @map("forensic_risk")
+  auditFindingCount       Int           @default(0) @map("audit_finding_count")
+
+  // Semi-structured JSONB payloads
+  extractedJson           Json?         @map("extracted_json")
+  forensicReport          Json?         @map("forensic_report")
+  agentFindings           Json?         @map("agent_findings")
+  scoreBreakdown          Json?         @map("score_breakdown")
+  erpPushResult           Json?         @map("erp_push_result")
+
+  createdAt               DateTime      @default(now()) @map("created_at")
+  updatedAt               DateTime      @updatedAt @map("updated_at")
+
+  vendor                  Vendor?       @relation(fields: [vendorId], references: [id])
+  lines                   InvoiceLine[]
+  auditFindings           AuditFinding[]
+  trustScores             TrustScore[]
+  paymentActions          PaymentAction[]
+  exceptions              Exception[]
+
+  // Deduplication cheap database constraint
+  @@unique([vendorId, normalizedInvoiceNumber, amount], name: "unique_vendor_invoice_amount")
+  @@index([status])
+  @@index([trustScore])
+  @@map("invoices")
+}
+
+model InvoiceLine {
+  id               String   @id @default(uuid())
+  invoiceId        String   @map("invoice_id")
+  lineNumber       Int      @map("line_number")
+  itemDescription  String   @map("item_description")
+  canonicalItemKey String   @map("canonical_item_key")
+  category         String   @default("GENERAL")
+  quantity         Decimal  @db.Decimal(14, 2)
+  unitPrice        Decimal  @map("unit_price") @db.Decimal(14, 2)
+  totalPrice       Decimal  @map("total_price") @db.Decimal(14, 2)
+  unitOfMeasure    String   @default("EA") @map("unit_of_measure")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  invoice          Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@map("invoice_lines")
+}
+
+model AuditFinding {
+  id           String          @id @default(uuid())
+  invoiceId    String          @map("invoice_id")
+  agentType    AgentType       @map("agent_type")
+  severity     FindingSeverity
+  findingType  String          @map("finding_type")
+  evidence     String
+  dollarImpact Decimal         @default(0) @map("dollar_impact") @db.Decimal(14, 2)
+  createdAt    DateTime        @default(now()) @map("created_at")
+
+  invoice      Invoice         @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@map("audit_findings")
+}
+
+model TrustScore {
+  id              String   @id @default(uuid())
+  invoiceId       String   @map("invoice_id")
+  score           Float
+  duplicateSignal Float    @map("duplicate_signal")
+  forensicSignal  Float    @map("forensic_signal")
+  auditSignal     Float    @map("audit_signal")
+  priceSignal     Float    @map("price_signal")
+  controlSignal   Float    @map("control_signal")
+  waterfall       Json
+  calculatedAt    DateTime @default(now()) @map("calculated_at")
+
+  invoice         Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@map("trust_scores")
+}
+
+model PaymentAction {
+  id              String        @id @default(uuid())
+  invoiceId       String        @map("invoice_id")
+  erpType         String        @default("QBO_SANDBOX") @map("erp_type")
+  erpBillId       String?       @map("erp_bill_id")
+  achReference    String        @map("ach_reference")
+  amount          Decimal       @db.Decimal(14, 2)
+  currency        String        @default("INR")
+  status          PaymentStatus @default(SETTLED)
+  responsePayload Json?         @map("response_payload")
+  executedAt      DateTime      @default(now()) @map("executed_at")
+
+  invoice         Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@map("payment_actions")
+}
+
+model Exception {
+  id         String   @id @default(uuid())
+  invoiceId  String   @map("invoice_id")
+  reasons    Json
+  status     String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  cfoNotes   String?  @map("cfo_notes")
+  decidedAt  DateTime? @map("decided_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  invoice    Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@map("exceptions")
+}
