@@ -233,22 +233,22 @@ export const ProcurementPillarView: React.FC<ProcurementPillarViewProps> = ({
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Pillar Header Bar */}
-      <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white rounded-xl p-4 sm:p-5 border border-slate-200/90 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center space-x-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-md shadow-blue-600/20">
-            <ShoppingCart className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center flex-shrink-0">
+            <ShoppingCart className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h2 className="text-xl font-black font-mono text-slate-900 tracking-tight uppercase">
+              <h2 className="text-base font-bold text-slate-900 tracking-tight">
                 Procurement Pipeline
               </h2>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-bold uppercase">
-                End-to-End AP Chain
+              <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                End-to-End Chain
               </span>
             </div>
-            <p className="text-xs text-slate-500 font-medium">
-              Purchase Request → Purchase Order → Invoices → AI Audit → Trust Score → Decision Engine → Feedback Loop
+            <p className="text-xs text-slate-500">
+              PR → PO Match → OCR Ingestion → 8-Stage Audit → Trust Score → Decision Engine → Feedback Loop
             </p>
           </div>
         </div>
@@ -256,15 +256,15 @@ export const ProcurementPillarView: React.FC<ProcurementPillarViewProps> = ({
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setNewPrModal(true)}
-            className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-mono font-bold flex items-center space-x-1.5 transition-all shadow-xs cursor-pointer"
+            className="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center space-x-1.5 transition-colors shadow-xs cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5 text-emerald-400" />
-            <span>New Purchase Request</span>
+            <span>New PR</span>
           </button>
 
           <button
             onClick={onOpenUpload}
-            className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-mono font-bold flex items-center space-x-1.5 transition-all shadow-xs cursor-pointer"
+            className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center space-x-1.5 transition-colors shadow-xs cursor-pointer"
           >
             <ScanEye className="w-3.5 h-3.5" />
             <span>Upload Document</span>
@@ -273,16 +273,16 @@ export const ProcurementPillarView: React.FC<ProcurementPillarViewProps> = ({
       </div>
 
       {/* Sub-Navigation Tabs */}
-      <div className="bg-slate-900 text-white rounded-2xl p-1.5 flex items-center space-x-1 overflow-x-auto shadow-md border border-slate-800 scrollbar-none">
+      <div className="bg-white border border-slate-200/90 rounded-xl p-1.5 flex items-center space-x-1 overflow-x-auto shadow-xs">
         {[
           { id: 'pipeline', label: 'Flow Pipeline', icon: Zap },
-          { id: 'purchase-requests', label: 'Purchase Request (PR)', icon: FileText, count: purchaseRequests.length },
-          { id: 'purchase-orders', label: 'Purchase Order (PO)', icon: FileCheck2, count: 24 },
+          { id: 'purchase-requests', label: 'Purchase Requests', icon: FileText, count: purchaseRequests.length },
+          { id: 'purchase-orders', label: 'Purchase Orders', icon: FileCheck2, count: 24 },
           { id: 'invoices', label: 'Inbound Invoices', icon: FileSpreadsheet, count: invoices.length },
-          { id: 'ai-audit', label: 'AI Audit (Forensics)', icon: ScanEye },
-          { id: 'trust-score', label: 'Trust Score (0-100)', icon: Award },
+          { id: 'ai-audit', label: 'Forensic Audit', icon: ScanEye },
+          { id: 'trust-score', label: 'Trust Score', icon: Award },
           { id: 'decision-engine', label: 'Decision Engine', icon: Cpu, badge: approvalRequiredInvoices.length },
-          { id: 'feedback', label: 'Feedback → AI', icon: RotateCcw, count: feedbackLogs.length },
+          { id: 'feedback', label: 'Calibration Feedback', icon: RotateCcw, count: feedbackLogs.length },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeSubTab === tab.id;
@@ -290,22 +290,28 @@ export const ProcurementPillarView: React.FC<ProcurementPillarViewProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveSubTab(tab.id)}
-              className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer whitespace-nowrap font-mono uppercase tracking-wider ${
-                isActive ? 'bg-blue-600 text-white shadow-md' : 'text-slate-300 hover:text-white hover:bg-slate-800'
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer whitespace-nowrap ${
+                isActive
+                  ? 'bg-slate-900 text-white font-semibold shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               }`}
             >
-              <Icon className="w-3.5 h-3.5" />
+              <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-blue-400' : 'text-slate-500'}`} />
               <span>{tab.label}</span>
 
               {tab.count !== undefined && (
-                <span className={`text-[10px] px-1.5 py-0.2 rounded font-bold ${isActive ? 'bg-blue-800 text-blue-100' : 'bg-slate-800 text-slate-300'}`}>
+                <span
+                  className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
+                    isActive ? 'bg-slate-800 text-slate-200' : 'bg-slate-100 text-slate-600'
+                  }`}
+                >
                   {tab.count}
                 </span>
               )}
 
               {tab.badge !== undefined && tab.badge > 0 && (
-                <span className="text-[10px] font-black px-1.5 py-0.2 rounded bg-amber-500 text-slate-950 font-mono">
-                  {tab.badge} CFO
+                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-amber-400 text-slate-950">
+                  {tab.badge}
                 </span>
               )}
             </button>

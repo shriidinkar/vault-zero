@@ -155,21 +155,21 @@ export const FinancePillarView: React.FC<FinancePillarViewProps> = ({
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Pillar Header Bar */}
-      <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white rounded-xl p-4 sm:p-5 border border-slate-200/90 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center space-x-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-bold shadow-md shadow-emerald-600/20">
-            <Landmark className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center flex-shrink-0">
+            <Landmark className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h2 className="text-xl font-black font-mono text-slate-900 tracking-tight uppercase">
-                Finance Pillar
+              <h2 className="text-base font-bold text-slate-900 tracking-tight">
+                Finance &amp; General Ledger
               </h2>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold uppercase">
-                Payments &amp; Ledger
+              <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                Settlement &amp; Audit
               </span>
             </div>
-            <p className="text-xs text-slate-500 font-medium">
+            <p className="text-xs text-slate-500">
               Payment Rails (ACH / FedNow) • 3-Way Bank Reconciliation • Immutable Financial Records
             </p>
           </div>
@@ -177,15 +177,15 @@ export const FinancePillarView: React.FC<FinancePillarViewProps> = ({
 
         <button
           onClick={onOpenAuditExport}
-          className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-mono font-bold flex items-center space-x-1.5 transition-all shadow-xs cursor-pointer self-start md:self-auto"
+          className="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center space-x-1.5 transition-colors shadow-xs cursor-pointer self-start md:self-auto"
         >
-          <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
+          <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />
           <span>Export CA Compliance Ledger</span>
         </button>
       </div>
 
       {/* Sub-Navigation Tabs */}
-      <div className="bg-slate-900 text-white rounded-2xl p-1.5 flex items-center space-x-1 overflow-x-auto shadow-md border border-slate-800 scrollbar-none">
+      <div className="bg-white border border-slate-200/90 rounded-xl p-1.5 flex items-center space-x-1 overflow-x-auto shadow-xs">
         {[
           { id: 'payments', label: 'Payments & Settlement Hub', icon: CreditCard, count: paymentsQueue.length },
           { id: 'reconciliation', label: '3-Way Bank Reconciliation', icon: Scale },
@@ -197,15 +197,21 @@ export const FinancePillarView: React.FC<FinancePillarViewProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveSubTab(tab.id)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer whitespace-nowrap font-mono uppercase tracking-wider ${
-                isActive ? 'bg-emerald-600 text-slate-950 shadow-md font-extrabold' : 'text-slate-300 hover:text-white hover:bg-slate-800'
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer whitespace-nowrap ${
+                isActive
+                  ? 'bg-slate-900 text-white font-semibold shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               }`}
             >
-              <Icon className="w-3.5 h-3.5" />
+              <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-emerald-400' : 'text-slate-500'}`} />
               <span>{tab.label}</span>
 
               {tab.count !== undefined && (
-                <span className={`text-[10px] px-1.5 py-0.2 rounded font-bold ${isActive ? 'bg-emerald-800 text-emerald-100' : 'bg-slate-800 text-slate-300'}`}>
+                <span
+                  className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
+                    isActive ? 'bg-slate-800 text-slate-200' : 'bg-slate-100 text-slate-600'
+                  }`}
+                >
                   {tab.count}
                 </span>
               )}

@@ -129,42 +129,42 @@ export const IntelligencePillarView: React.FC<IntelligencePillarViewProps> = ({
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Pillar Header Bar */}
-      <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white rounded-xl p-4 sm:p-5 border border-slate-200/90 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center space-x-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center font-bold shadow-md shadow-purple-600/20">
-            <BrainCircuit className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center flex-shrink-0">
+            <BrainCircuit className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h2 className="text-xl font-black font-mono text-slate-900 tracking-tight uppercase">
-                Intelligence Pillar
+              <h2 className="text-base font-bold text-slate-900 tracking-tight">
+                Risk &amp; AP Intelligence
               </h2>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-100 text-purple-800 font-bold uppercase">
-                Risk &amp; AP Brain
+              <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
+                Continuous Surveillance
               </span>
             </div>
-            <p className="text-xs text-slate-500 font-medium">
-              Risk Center (VaR) • Counterparty Vendor Intel • Savings Alpha • Interactive AI AP Copilot
+            <p className="text-xs text-slate-500">
+              Risk Center (VaR) • Counterparty Vendor Intel • Savings Alpha • AI Copilot
             </p>
           </div>
         </div>
 
         <button
           onClick={onOpenAuditExport}
-          className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-mono font-bold flex items-center space-x-1.5 transition-all shadow-xs cursor-pointer self-start md:self-auto"
+          className="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center space-x-1.5 transition-colors shadow-xs cursor-pointer self-start md:self-auto"
         >
-          <PiggyBank className="w-4 h-4 text-emerald-400" />
+          <PiggyBank className="w-3.5 h-3.5 text-emerald-400" />
           <span>Export Savings Audit</span>
         </button>
       </div>
 
       {/* Sub-Navigation Tabs */}
-      <div className="bg-slate-900 text-white rounded-2xl p-1.5 flex items-center space-x-1 overflow-x-auto shadow-md border border-slate-800 scrollbar-none">
+      <div className="bg-white border border-slate-200/90 rounded-xl p-1.5 flex items-center space-x-1 overflow-x-auto shadow-xs">
         {[
           { id: 'risk-center', label: 'Risk Center & Fraud Vectors', icon: ShieldAlert },
-          { id: 'vendor-intel', label: 'Counterparty Vendor Intel', icon: Users, count: 48 },
+          { id: 'vendor-intel', label: 'Counterparty Intel', icon: Users, count: 48 },
           { id: 'savings', label: 'Savings Alpha & DPO', icon: PiggyBank },
-          { id: 'copilot', label: 'AI Copilot (AP Brain)', icon: Sparkles, pulse: true },
+          { id: 'copilot', label: 'AI AP Copilot', icon: Sparkles, pulse: true },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeSubTab === tab.id;
@@ -172,21 +172,27 @@ export const IntelligencePillarView: React.FC<IntelligencePillarViewProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveSubTab(tab.id)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer whitespace-nowrap font-mono uppercase tracking-wider ${
-                isActive ? 'bg-purple-600 text-white shadow-md' : 'text-slate-300 hover:text-white hover:bg-slate-800'
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer whitespace-nowrap ${
+                isActive
+                  ? 'bg-slate-900 text-white font-semibold shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               }`}
             >
-              <Icon className="w-3.5 h-3.5" />
+              <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-purple-400' : 'text-slate-500'}`} />
               <span>{tab.label}</span>
 
               {tab.count !== undefined && (
-                <span className={`text-[10px] px-1.5 py-0.2 rounded font-bold ${isActive ? 'bg-purple-800 text-purple-100' : 'bg-slate-800 text-slate-300'}`}>
+                <span
+                  className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
+                    isActive ? 'bg-slate-800 text-slate-200' : 'bg-slate-100 text-slate-600'
+                  }`}
+                >
                   {tab.count}
                 </span>
               )}
 
               {tab.pulse && (
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse ml-0.5" />
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 ml-0.5" />
               )}
             </button>
           );

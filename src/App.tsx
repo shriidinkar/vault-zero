@@ -230,13 +230,16 @@ export function App() {
 
   // Render: MAIN DASHBOARD & 3 PILLARS WORKSPACE
   return (
-    <div className="min-h-screen bg-[#edf2f9] text-slate-800 font-sans selection:bg-blue-600 selection:text-white pb-28">
+    <div className="min-h-screen bg-slate-50/80 text-slate-900 font-sans selection:bg-blue-600 selection:text-white pb-24">
       {/* Centered Page Container */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 space-y-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-5">
         {/* Top Navbar */}
         <VaultNavbar
           currentUser={currentUser}
           workspace={currentWorkspace}
+          activePillar={activePillar}
+          onSelectPillar={(pillar) => setActivePillar(pillar)}
+          pendingExceptionsCount={pendingExceptionsCount}
           onSwitchUser={(user) => setCurrentUser(user)}
           onOpenUpload={() => setIsUploadOpen(true)}
           onOpenEval={() => setIsEvalOpen(true)}
